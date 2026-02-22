@@ -1,1 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sliding Puzzle</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #111;
+    }
 
+    .puzzle {
+      width: 400px;
+      height: 400px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .tile {
+      background-image: url("image.jpg");
+      background-size: 400px 400px;
+      cursor: pointer;
+    }
+
+    .empty {
+      background: black;
+      cursor: default;
+    }
+  </style>
+</head>
+<body>
+
+<div class="puzzle" id="puzzle"></div>
+
+<script>
+  const puzzle = document.getElementById("puzzle");
+  const size = 3;
+  let tiles = [];
+
+  function createPuzzle() {
+    for (let i = 0; i < size * size; i++) {
+      const tile = document.createElement("div");
+      tile.classList.add("tile");
+      tile.dataset.index = i;
+
+      const x = (i % size) * 133.33;
+      const y = Math.floor(i / size) * 133.33;
+
+      tile.style.backgroundPosition = `-${x}px -${y}px`;
+
+      tiles.push(tile);
+      puzzle.appendChild(tile);
+    }
+
+    tiles[size * size - 1].classList.add("empty");
+    tiles[size * size - 1].style.backgroundImage = "none";
+  }
+
+  createPuzzle();
+</script>
+
+</body>
+</html>
