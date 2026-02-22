@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Sliding Puzzle</title>
   <style>
     body {
+      background: #111;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: #111;
+      font-family: Arial, sans-serif;
     }
 
     .puzzle {
-      width: 400px;
-      height: 400px;
+      width: 450px;
+      height: 450px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
       gap: 2px;
+      background: #000;
     }
 
     .tile {
       background-image: url("image.jpg");
-      background-size: 400px 400px;
+      background-size: 450px 450px;
       cursor: pointer;
     }
 
@@ -41,26 +44,86 @@
   const size = 3;
   let tiles = [];
 
-  function createPuzzle() {
+  function createTiles() {
+    puzzle.innerHTML = "";
+    tiles = [];
+
     for (let i = 0; i < size * size; i++) {
       const tile = document.createElement("div");
       tile.classList.add("tile");
       tile.dataset.index = i;
 
-      const x = (i % size) * 133.33;
-      const y = Math.floor(i / size) * 133.33;
+      if (i === size * size - 1) {
+        tile.classList.add("empty");
+      } else {
+        const row = Math.floor(i / size);
+        const col = i % size;
+        tile.style.backgroundPosition = 
+          `-${col * 150}px -${row * 150}px`;
+      }
 
-      tile.style.backgroundPosition = `-${x}px -${y}px`;
-
-      tiles.push(tile);
       puzzle.appendChild(tile);
+      tiles.push(tile);
     }
-
-    tiles[size * size - 1].classList.add("empty");
-    tiles[size * size - 1].style.backgroundImage = "none";
   }
 
-  createPuzzle();
+  function getEmptyIndex() {
+    return tiles.findIndex(tile => tile.classList.contains("empty"));
+  }
+
+  function swapTiles(i1, i2) {
+    const tempBg = tiles[i1].style.backgroundPosition;
+    const tempEmpty = tiles[i1].classList.contains("empty");
+
+    tiles[i1].style.backgroundPosition = tiles[i2].style.backgroundPosition;
+    tiles[i2].style.backgroundPosition = tempBg;
+
+    tiles[i1].classList.toggle("empty", tiles[i2].classList.contains("empty"));
+    tiles[i2].classList.toggle("empty", tempEmpty);
+  }
+
+  function isAdjacent(i1, i2) {
+    const row1 = Math.floor(i1 / size);
+    const col1 = i1 % size;
+    const row2 = Math.floor(i2 / size);
+    const col2 = i2 % size;
+
+    return (
+      (row1 === row2 && Math.abs(col1 - col2) === 1) ||
+      (col1 === col2 && Math.abs(row1 - row2) === 1)
+    );
+  }
+
+  function addClickEvents() {
+    puzzle.addEventListener("click", function(e) {
+      if (!e.target.classList.contains("tile")) return;
+
+      const clickedIndex = tiles.indexOf(e.target);
+      const emptyIndex = getEmptyIndex();
+
+      if (isAdjacent(clickedIndex, emptyIndex)) {
+        swapTiles(clickedIndex, emptyIndex);
+      }
+    });
+  }
+
+  function shuffle() {
+    for (let i = 0; i < 200; i++) {
+      const emptyIndex = getEmptyIndex();
+      const possibleMoves = tiles
+        .map((tile, index) => index)
+        .filter(index => isAdjacent(index, emptyIndex));
+
+      const randomMove =
+        possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+
+      swapTiles(randomMove, emptyIndex);
+    }
+  }
+
+  createTiles();
+  addClickEvents();
+  shuffle();
 </script>
 
 </body>
